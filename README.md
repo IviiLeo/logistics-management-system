@@ -1,151 +1,42 @@
-# Inge-Software
-========================================================================
-LOGÍSTICA ENVÍOS - BACKEND WEB (DJANGO & DRF)
-========================================================================
+# Logistics Management System - MVP
 
-Instrucciones para clonar, configurar y ejecutar el proyecto localmente.
+Full-stack logistics and delivery management system developed collaboratively by a team of 6 students as a Software Engineering course project. This repository reflects a stable Sprint 1 release featuring a core end-to-end workflow.
 
-------------------------------------------------------------------------
-REQUISITOS PREVIOS
-------------------------------------------------------------------------
-- Python 3.10 o superior instalado.
-- Git instalado.
+## 🚀 Tech Stack
+* **Backend & Web Frontend:** Python, Django, Django REST Framework, Django Templates (HTML, CSS, JavaScript), SQLite
+* **Mobile App:** React Native, Expo
+* **Architecture:** RESTful API
 
-------------------------------------------------------------------------
-GUÍA DE INSTALACIÓN PASO A PASO
-------------------------------------------------------------------------
+## 👨‍💻 My Technical Contributions (Sprint 1)
 
-1. CLONAR EL REPOSITORIO
-   Abre una terminal y clona el proyecto en tu máquina:
-   
-   git clone https://github.com/tu-usuario/tu-repositorio.git
-   cd tu-repositorio
+* **Authentication & Security:** Engineered a secure session-based login system for the web interface using encrypted cookies, automatic timeout policies (1-hour inactivity), and password/PIN hashing. Implemented custom decorators for Role-Based Access Control (RBAC) and mitigated user enumeration vulnerabilities during login.
+* **RESTful API Development:** Built core endpoints using Django REST Framework for the React Native mobile app, including mobile authentication, fetching daily delivery itineraries, and managing active deliveries (e.g., modifying and deleting current tasks).
+* **Database Architecture:** Designed and implemented relational models for core business entities: Personnel (Administrators and Drivers), Route Sheets, and Deliveries.
+* **Web Views & Business Logic:** Developed full CRUD operations for the Route Sheets module using Django native templates. Implemented specific business rules, such as filtering out inactive drivers from assignment pools and optimizing unpaginated ID search queries.
+* **Testing & Integration:** Executed end-to-end integration tests for web/mobile authentication and route management workflows. Managed the final sprint integration process, ensuring the MVP complied with the client's user stories.
 
+---
 
-2. NAVEGAR HASTA LA CARPETA QUE UTILIZARA PYTHON
-   cd BACK-WEB
+## ⚙️ Local Setup Instructions
 
+### Backend & Web Interface (Django)
+1. Navigate to the backend directory: `cd BACK-WEB`
+2. Create and activate a virtual environment: 
+   * Windows: `python -m venv venv` and `venv\Scripts\activate`
+   * Linux/macOS: `python3 -m venv venv` and `source venv/bin/activate`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Configure environment variables: 
+   * Navigate to `cd logistica_envios`
+   * Copy the example file: `copy .env.example .env` (or `cp` on Linux/macOS)
+   * Generate a random secret key and assign it to `SECRET_KEY` in your `.env` file.
+5. Apply database migrations: `python manage.py migrate`
+6. Run the development server: `python manage.py runserver` 
+*(The web interface and API endpoints will be available at `http://127.0.0.1:8000/`)*
 
-3. CREAR Y ACTIVAR UN ENTORNO VIRTUAL
-   ejecuten linea por linea
-
-   - En Windows (PowerShell / CMD):
-       python -m venv venv
-       venv\Scripts\activate
-
-   - En Linux / macOS:
-       python3 -m venv venv
-       source venv/bin/activate
-
-   (Comprueba que aparezca '(venv)' al inicio de la línea de comandos).
-
-
-4. INSTALAR DEPENDENCIAS
-   Con el entorno virtual activo, instala los paquetes requeridos:
-   
-   pip install -r requirements.txt
-
-
-5. CONFIGURAR LAS VARIABLES DE ENTORNO (.env)
-   Entrar a la carpeta del proyecto que se creo con el manage.py
-      cd logistica_envios
-   
-   Copia la plantilla de ejemplo para crear tu archivo local:
-
-   - En Windows:
-       copy .env.example .env
-
-   - En Linux / macOS:
-       cp .env.example .env
-
-   Luego genera una clave secreta aleatoria ejecutando:
-   
-   python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-
-   Abre el archivo .env con un editor de texto y asigna la clave generada
-   a la variable SECRET_KEY:
-   
-   SECRET_KEY=pega_aqui_el_valor_generado
-   DEBUG=True
-
-   (guardar antes de continuar)
-
-6. CREAR LA BASE DE DATOS Y APLICAR MIGRACIONES
-   python manage.py migrate
-
-
-7. INICIAR EL SERVIDOR DE DESARROLLO
-   python manage.py runserver
-
-   El servicio estará disponible en: http://127.0.0.1:8000/
-
-========================================================================
-NOTAS DE SEGURIDAD
-========================================================================
-- Los archivos .env y db.sqlite3 están excluidos por .gitignore y nunca 
-  deben subirse al repositorio de Git.
-========================================================================
-
-
-
-
-
-========================================================================
-FRONTEND MOBILE (EXPO REACT NATIVE - CARPETA 'APP')
-========================================================================
-
-------------------------------------------------------------------------
-REQUISITOS PREVIOS
-------------------------------------------------------------------------
-- Node.js (versión LTS recomendada, v18 o superior).
-- Aplicación móvil 'Expo Go' instalada en tu teléfono celular (disponible 
-  en Google Play Store para Android o App Store para iOS).
-
-------------------------------------------------------------------------
-GUÍA DE INSTALACIÓN Y EJECUCIÓN
-------------------------------------------------------------------------
-
-1. NAVEGAR A LA CARPETA MOBILE
-   Desde la raíz del repositorio (en la terminal deberia de aparecer asi ...\Inge-Software>)
-   ingresa al directorio de la app:
-
-   cd APP
-
-
-2. INSTALAR DEPENDENCIAS DE NODE
-   Instala todos los paquetes requeridos definidos en package.json:
-
-   npm install
-
-
-3. INICIAR EL SERVIDOR DE DESARROLLO (METRO BUNDLER)
-   Ejecuta:
-
-   npx expo start
-
-   (Si experimentas problemas de caché, puedes ejecutar: npx expo start -c)
-
-
-4. VISUALIZAR LA APLICACIÓN
-   Una vez que Metro Bundler termine de compilar, verás un código QR 
-   en la terminal:
-
-   - En celular físico (Android / iOS):
-     * Conecta tu celular a la MISMA RED WI-FI que tu computadora.
-     * En Android: Abre la app 'Expo Go' y selecciona 'Scan QR code'.
-     * En iOS: Abre la app de la Cámara nativa y escanea el código QR.
-
-   - En el navegador web:
-     * Presiona la tecla 'w' en la terminal.
-
-   - En emulador:
-     * Presiona 'a' para abrir en emulador de Android (requiere Android Studio).
-     * Presiona 'i' para abrir en simulador de iOS (solo en macOS con Xcode).
-
-========================================================================
-NOTAS DE SEGURIDAD Y CONFIGURACIÓN
-========================================================================
-- La carpeta 'APP/node_modules' y los archivos temporales de compilación 
-  (.expo, dist, logs) están excluidos por el archivo .gitignore y nunca 
-  deben subirse al repositorio.
-========================================================================
+### Mobile App (Expo React Native)
+1. Navigate to the frontend directory: `cd APP`
+2. Install node dependencies: `npm install`
+3. Start the Metro Bundler: `npx expo start`
+4. Run the application:
+   * **Mobile:** Scan the QR code with the Expo Go app on your phone (ensure both devices share the same Wi-Fi network).
+   * **Emulator:** Press `a` for Android or `i` for iOS.
