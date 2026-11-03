@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'img/logotipo/05_isotipo_favicon.png' %}?v=1">
+    <title>Iniciar sesión - RepartoYA</title>
+    <link rel="stylesheet" href="{% static 'empleados/css/login.css' %}?v=2">
+</head>
+<body>
+    <main class="contenedor">
+        <section class="tarjeta-login">
+
+            <div class="marca">
+                <img src="{% static 'img/logotipo/01_isotipo_solo.svg' %}" alt="Logo RepartoYA" class="logo-img">
+                <span class="nombre-marca">Reparto<span class="marca-ya">YA</span></span>
+            </div>
+
+            <h1>Iniciar sesión</h1>
+            <p class="subtitulo">Ingresá con tu correo electrónico y contraseña</p>
+
+            <form id="form-login" method="post" action="{% url 'login_web' %}" autocomplete="off" novalidate>
+                {% csrf_token %}
+
+                <div class="campo">
+                    <label for="mail">Correo electrónico</label>
+                    <input type="email" id="mail" name="mail" placeholder="nombre@empresa.com" value="{{ mail_ingresado|default:'' }}" autocomplete="off" required>
+                    <p id="error-mail" class="error-campo" hidden></p>
+                </div>
+
+                <div class="campo">
+                    <label for="contrasena">Contraseña</label>
+                    <input type="password" id="contrasena" name="clave" placeholder="Tu contraseña" autocomplete="new-password" required>
+                    <p id="error-contrasena" class="error-campo" hidden></p>
+                </div>
+
+                {% if messages %}
+                    <div class="mensaje-error">
+                        {% for mensaje in messages %}
+                            <p>{{ mensaje }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="boton">Iniciar sesión</button>
+            </form>
+
+        </section>
+    </main>
+
+</body>
+</html>

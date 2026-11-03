@@ -1,0 +1,197 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Pedidos - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'pedidos/css/pedidos.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+
+<header class="page-header">
+    <h1>Gestión de Pedidos</h1>
+</header>
+
+{% if messages and not abrir_modal_nuevo %}
+    {% for message in messages %}
+        <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="controls-bar">
+    <!-- 1. TU FORMULARIO ORIGINAL: Fundamental para que los filtros envíen los datos a Django -->
+    <form method="GET" action="{% url 'lista_pedidos_web' %}" class="search-filters" id="form-filtros-pedidos">
+        
+        <!-- 2. EL DISEÑO NUEVO DE TU COMPAÑERO -->
+        <div class="filtros" style="margin-bottom: 20px;">
+            <div class="filtro">
+                <label>ID PEDIDO</label>
+                <input type="text" id="buscador-pedidos" name="id_pedido" value="{{ id_buscado|default:'' }}" placeholder="Ej: 88342" class="input-search">
+            </div>
+            
+            <div class="filtro">
+                <label>FECHA DE ENTREGA</label>
+                <input type="date" id="filtro-fecha-pedido" name="fecha_entrega" value="{{ fecha_buscada|default:'' }}" class="input-search">
+            </div>
+            
+            <div class="filtro">
+                <label>ESTADO</label>
+                <select id="filtro-estado-pedido" name="estado" class="select-filter">
+                    <option value="todos" {% if estado_actual == 'todos' or not estado_actual %}selected{% endif %}>Todos los estados</option>
+                    <option value="pendiente" {% if estado_actual == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="asignado" {% if estado_actual == 'asignado' %}selected{% endif %}>Asignado</option>
+                    <option value="entregado" {% if estado_actual == 'entregado' %}selected{% endif %}>Entregado</option>
+                    <option value="no-entregado" {% if estado_actual == 'no-entregado' or estado_actual == 'no_entregado' %}selected{% endif %}>No entregado</option>
+                </select>
+            </div>
+        </div>
+    </form>
+    
+    <!-- 3. TUS BOTONES RESTAURADOS: Exactamente como los habías maquetado -->
+    <div class="actions">
+        <button type="button" class="btn btn-outline" id="btn-abrir-csv">Cargar CSV</button>
+        <button type="button" class="btn btn-primary btn-nuevo-pedido" id="btn-nuevo-pedido"><i class="fa-solid fa-plus"></i><span>Nuevo Pedido</span></button>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID PEDIDO</th>
+                <th>COMERCIO CLIENTE</th>
+                <th>PROVEEDOR</th>
+                <th>F. CREACIÓN</th>
+                <th>F. ENTREGA</th>
+                <th>ESTADO</th>
+                <th>ACCIONES</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-pedidos">
+            {% for pedido in lista_de_pedidos %}
+            <tr class="fila-pedido" data-estado="{{ pedido.estado }}" data-fecha="{{ pedido.fecha_entrega|date:'Y-m-d' }}">
+                <td><strong class="id-cell">PD-{{ pedido.id }}</strong></td>
+                <td>{{ pedido.razon_social_comercio }}</td>
+                <td>{{ pedido.razon_social_proveedor }}</td>
+                <td>{{ pedido.fecha_creacion|date:"d/m/Y" }}</td>
+                <td>{{ pedido.fecha_entrega|date:"d/m/Y" }}</td>
+                <td>
+                    {% if pedido.estado == 'pendiente' %}
+                        <span class="badge badge-pendiente">{{ pedido.get_estado_display }}</span>
+                    {% elif pedido.estado == 'asignado' %}
+                        <span class="badge badge-asignado">{{ pedido.get_estado_display }}</span>
+                    {% elif pedido.estado == 'entregado' %}
+                        <span class="badge badge-entregado">{{ pedido.get_estado_display }}</span>
+                    {% else %}
+                        <span class="badge badge-no-entregado">{{ pedido.get_estado_display }}</span>
+                    {% endif %}
+                </td>
+                <td><a href="{% url 'detalle_pedido_web' pedido.id %}" class="link-detail">Ver detalle</a></td>
+            </tr>
+            {% empty %}
+            <tr id="fila-vacia">
+                <td colspan="7" class="mensaje-vacio">No se han encontrado pedidos</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if lista_de_pedidos.has_other_pages %}
+<div class="paginacion-container">
+    {% if lista_de_pedidos.has_previous %}
+        <a href="?pagina={{ lista_de_pedidos.previous_page_number }}&{{ parametros_url }}" class="btn btn-outline paginacion-btn">Anterior</a>
+    {% endif %}
+    <span class="paginacion-info">Página {{ lista_de_pedidos.number }} de {{ lista_de_pedidos.paginator.num_pages }}</span>
+    {% if lista_de_pedidos.has_next %}
+        <a href="?pagina={{ lista_de_pedidos.next_page_number }}&{{ parametros_url }}" class="btn btn-outline paginacion-btn">Siguiente</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- MODAL: NUEVO PEDIDO MANUAL -->
+<div id="modal-nuevo-pedido" class="modal-overlay {% if not abrir_modal_nuevo %}hidden{% endif %}">
+    <div class="modal-card modal-large">
+        <h2>Cargar Nuevo Pedido</h2>
+        <div id="modal-mensaje" class="mensaje {% if abrir_modal_nuevo and messages %}error{% endif %}">
+            {% if abrir_modal_nuevo and messages %}
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <form id="form-nuevo-pedido" class="form-grid" method="POST" action="{% url 'crear_pedido_web' %}" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Nombre Comercio </label>
+                <input type="text" id="input-cliente" name="razon_social_comercio" value="{{ datos_nuevo_pedido.razon_social_comercio|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label>CUIT Comercio </label>
+                <input type="text" inputmode="numeric" pattern="\d*" maxlength="11" id="input-cuit-cliente" name="cuit_comercio" value="{{ datos_nuevo_pedido.cuit_comercio|default:'' }}" required>
+                <small>Ingrese el CUIT de 11 dígitos sin espacios ni guiones.</small>
+            </div>
+            <div class="form-group">
+                <label>Nombre Proveedor </label>
+                <input type="text" id="input-proveedor" name="razon_social_proveedor" value="{{ datos_nuevo_pedido.razon_social_proveedor|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label>CUIT Proveedor </label>
+                <input type="text" inputmode="numeric" pattern="\d*" maxlength="11" id="input-cuit-proveedor" name="cuit_proveedor" value="{{ datos_nuevo_pedido.cuit_proveedor|default:'' }}" required>
+                <small>Ingrese el CUIT de 11 dígitos sin espacios ni guiones.</small>
+            </div>
+            <div class="form-group form-col-span-2">
+                <label>Dirección de entrega</label>
+                <input type="text" id="input-domicilio" name="domicilio_comercio" value="{{ datos_nuevo_pedido.domicilio_comercio|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Monto Total ($) </label>
+                <input type="number" step="0.01" id="input-monto" name="monto_total" value="{{ datos_nuevo_pedido.monto_total|default:'' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Fecha de Entrega Pautada </label>
+                <input type="date" id="input-fecha-entrega" name="fecha_entrega" min="{{ fecha_minima }}" value="{{ datos_nuevo_pedido.fecha_entrega|default:'' }}" required>
+            </div>
+            <div class="form-group form-col-span-2">
+                <label>Remito (PDF) </label>
+                <input type="file" id="input-remito" name="remito" accept="application/pdf" required>
+            </div>
+
+            <div class="modal-actions form-col-span-2">
+                <button type="button" class="btn btn-outline" id="btn-cancelar">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear Pedido</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: CARGAR CSV -->
+<div id="modal-cargar-csv" class="modal-overlay hidden">
+    <div class="modal-card modal-csv-card">
+        <h2>Cargar Pedidos (CSV)</h2>
+        <p class="modal-csv-subtitle">Subí tu archivo delimitado por comas para cargar múltiples pedidos a la vez.</p>
+        <div class="plantilla-csv-wrapper">
+            <a href="{% url 'descargar_csv_ejemplo_web' %}" class="btn btn-outline btn-plantilla-csv">📥 Descargar plantilla de formato</a>
+        </div>
+        <form id="form-cargar-csv" method="POST" action="{% url 'cargar_pedidos_csv_web' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div id="csv-drop-zone" class="drop-zone">
+                <span class="drop-icon">📄</span>
+                <span id="csv-drop-text">Arrastrá tu archivo .csv acá o hacé clic para buscar</span>
+                <input type="file" id="input-csv" name="archivo_csv" accept=".csv" class="input-file-hidden">
+            </div>
+            <div class="modal-actions modal-csv-actions">
+                <button type="button" class="btn btn-outline" id="btn-cancelar-csv">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-confirmar-disabled" id="btn-confirmar-csv" disabled>Confirmar carga</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'pedidos/js/pedidos.js' %}?v=2"></script>
+{% endblock %}

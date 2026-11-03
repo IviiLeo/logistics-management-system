@@ -1,0 +1,130 @@
+/* ================= BOTÓN NUEVO PEDIDO ================= */
+.btn-nuevo-pedido {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+    margin: 0;
+}
+
+.btn-nuevo-pedido i {
+    font-size: 13px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= PAGINACIÓN DE PEDIDOS ================= */
+.paginacion-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.paginacion-btn {
+    text-decoration: none;
+}
+
+.paginacion-info {
+    font-size: 13px;
+    color: #555;
+}
+
+/* ================= MODAL DE CARGA DE CSV ================= */
+.modal-csv-card {
+    width: 450px;
+}
+
+.modal-csv-subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.plantilla-csv-wrapper {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.btn-plantilla-csv {
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    width: 100%;
+}
+
+.drop-icon {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.input-file-hidden {
+    display: none;
+}
+
+.modal-csv-actions {
+    margin-top: 25px;
+}
+
+.btn-confirmar-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ================= BARRA DE FILTROS ================= */
+.filtros {
+    display: flex; 
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.filtro {
+    display: flex; 
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filtro label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filtro .input-search,
+.filtro .select-filter {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    width: 200px; /* Ajustable según necesidad */
+}
+
+.filtro .input-search:focus,
+.filtro .select-filter:focus {
+    border-color: var(--naranja-ya);
+}
+
+.drop-zone-hover { border-color: #FFC107 !important; background-color: #fffdf5 !important; }
+.btn-deshabilitado { opacity: 0.5; cursor: not-allowed !important; pointer-events: none; }
+.d-inline-block { display: inline-block !important; }

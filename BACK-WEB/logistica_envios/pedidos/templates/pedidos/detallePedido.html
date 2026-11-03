@@ -1,0 +1,207 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Detalle de Pedido - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'pedidos/css/detallePedido.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- TARJETA 1: DETALLE Y EDICIÓN -->
+<div class="table-container detalle-card detalle-card-spacing">
+    
+    <div class="header-con-flecha">
+        <button type="button" id="btn-volver-atras" class="btn-flecha-atras" title="Volver a la lista">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2 class="detalle-section-title titulo-sin-margen">Detalle y Edición de Pedido</h2>
+    </div>
+    
+    <p class="detalle-section-subtitle">Revise o modifique la información y documentación asociada a este pedido.</p>
+
+    <div id="alerta-bloqueo" class="mensaje advertencia {% if se_puede_editar %}hidden{% endif %}">
+        Este pedido ya no se puede modificar porque se encuentra en fecha de entrega.
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form id="form-detalle-pedido" class="form-grid" method="POST" action="{% url 'modificar_pedido_web' pedido.id %}" enctype="multipart/form-data" autocomplete="off">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>ID de Pedido</label>
+            <input type="text" value="ID-{{ pedido.id }}" readonly class="input-readonly">
+        </div>
+        <div class="form-group">
+            <label>Estado del pedido</label>
+            <div class="estado-badge-wrapper align-center gap-10">
+                <!-- El Badge del Estado -->
+                <div>
+                    {% if pedido.estado == 'pendiente' %} <span class="badge badge-pendiente">Pendiente</span>
+                    {% elif pedido.estado == 'asignado' %} <span class="badge badge-asignado">Asignado</span>
+                    {% elif pedido.estado == 'entregado' %} <span class="badge badge-entregado">Entregado</span>
+                    {% else %} <span class="badge badge-no-entregado">No entregado</span> {% endif %}
+                </div>
+
+                <!-- El Enlace de la Hoja de Ruta (Solo si NO es pendiente y tiene hoja asignada) -->
+                {% if pedido.estado != 'pendiente' and pedido.hoja_de_ruta %}
+                    <div class="badge-hoja-ruta">
+                        <i class="fa-solid fa-route"></i> 
+                        <a href="{% url 'asignar_pedidos' pedido.hoja_de_ruta.id %}" class="link-hoja" title="Ver Hoja de Ruta">
+                            HR-{{ pedido.hoja_de_ruta.id }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre Comercio Cliente</label>
+            <input type="text" id="detalle-cliente" name="razon_social_comercio" value="{{ pedido.razon_social_comercio }}" required>
+        </div>
+        <div class="form-group">
+            <label>CUIT Cliente</label>
+            <input type="text" inputmode="numeric" pattern="\d*" maxlength="11" id="detalle-cuit-cliente" name="cuit_comercio" value="{{ pedido.cuit_comercio }}" required>
+            <small>Ingrese el CUIT de 11 dígitos sin espacios ni guiones.</small>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre Proveedor</label>
+            <input type="text" id="detalle-proveedor" name="razon_social_proveedor" value="{{ pedido.razon_social_proveedor }}" required>
+        </div>
+        <div class="form-group">
+            <label>CUIT Proveedor</label>
+            <input type="text" inputmode="numeric" pattern="\d*" maxlength="11" id="detalle-cuit-proveedor" name="cuit_proveedor" value="{{ pedido.cuit_proveedor }}" required>
+            <small>Ingrese el CUIT de 11 dígitos sin espacios ni guiones.</small>
+        </div>
+
+        <div class="form-group form-col-span-2">
+            <label>Dirección de entrega</label>
+            <input type="text" id="detalle-domicilio" name="domicilio_comercio" value="{{ pedido.domicilio_comercio }}" required>
+        </div>
+        <div class="form-group">
+            <label>Monto Total ($)</label>
+            <input type="number" step="0.01" id="detalle-monto" name="monto_total" value="{{ pedido.monto_total|stringformat:'.2f' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Fecha de Entrega Pautada</label>
+            <input type="date" id="detalle-fecha-entrega" name="fecha_entrega" value="{{ pedido.fecha_entrega|date:'Y-m-d' }}" required>
+        </div>
+
+        <div class="form-group form-col-span-2">
+            <label>Documentación</label>
+            <div class="remito-actions">
+                {% if tiene_remito %}
+                    <a href="{% url 'ver_remito_web' pedido.id %}" target="_blank" class="btn btn-outline btn-remito-link">VER REMITO</a>
+                {% else %}
+                    <button type="button" class="btn btn-outline btn-remito-disabled" disabled>VER REMITO</button>
+                {% endif %}
+                
+                {% if se_puede_editar %}
+                <button type="button" class="btn btn-outline btn-icon-edit" id="btn-editar-remito" title="Cargar remito PDF">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+                <span id="nombre-nuevo-pdf" class="badge-nuevo-pdf"></span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- BOTONERA -->
+        {% if se_puede_editar %}
+        <div class="modal-actions form-col-span-2 detalle-form-actions" id="bloque-botones-edicion">
+            <button type="button" class="btn btn-danger" id="btn-eliminar">Eliminar pedido</button>
+            <div class="detalle-actions-right">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- TARJETA 2: ENTREGA -->
+<div class="table-container detalle-card">
+    <h2 class="detalle-section-title">
+        Entrega
+    </h2>
+    <p class="detalle-section-subtitle">
+        Información de la entrega asociada a este pedido.
+    </p>
+
+    {% if entrega %}
+    <div class="form-grid">
+        <div class="form-group">
+            <label>ID de Entrega</label>
+            <div class="dato-padding">
+                <a href="{% url 'detalle_entrega' entrega.id %}" class="link-detail">ENT-{{ entrega.id }}</a>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Fecha de Entrega</label>
+            <div class="dato-padding">
+                <span class="dato-destacado">{{ entrega.fecha|date:"d/m/Y"|default:"-" }}</span>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="mensaje-vacio-caja">
+        El pedido no está asociado a ninguna entrega actualmente.
+    </div>
+    {% endif %}
+</div>
+
+<!-- MODAL: CONFIRMAR CANCELACIÓN -->
+<div id="modal-confirmar-cancelar" class="modal-overlay hidden">
+    <div class="modal-card">
+        <h2>¿Seguro que quiere cancelar los cambios?</h2>
+        <p class="modal-text">Toda la información modificada que no haya sido guardada se perderá.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-outline" id="btn-volver-editar">No, seguir editando</button>
+            <a href="{% url 'lista_pedidos_web' %}" class="btn btn-primary btn-link-no-underline">Sí, cancelar</a>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CONFIRMAR ELIMINACIÓN -->
+<div id="modal-confirmar-eliminar" class="modal-overlay hidden">
+    <div class="modal-card">
+        <h2 class="modal-title-danger">Eliminar Pedido</h2>
+        <p class="modal-text">¿Está seguro que desea eliminar este pedido de la base de datos? Esta acción es irreversible.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-outline" id="btn-cancelar-eliminar">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="btn-confirmar-eliminar">Sí, eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: CARGAR/REEMPLAZAR PDF (Drag & Drop) -->
+<div id="modal-cargar-pdf" class="modal-overlay hidden">
+    <div class="modal-card modal-pdf-card">
+        <h2>Cargar Remito (PDF)</h2>
+        <p class="modal-pdf-subtitle">Subí el archivo PDF correspondiente al remito de este pedido.</p>
+        
+        <div id="pdf-drop-zone" class="drop-zone">
+            <span class="drop-icon">
+                <i class="fa-regular fa-file-lines"></i>
+            </span>
+            <span id="pdf-drop-text">Arrastrá tu archivo .pdf acá o hacé clic para buscar</span>
+            <input type="file" id="input-pdf-drag" name="remito" form="form-detalle-pedido" accept="application/pdf" class="input-file-hidden">
+        </div>
+
+        <div class="modal-actions modal-pdf-actions">
+            <button type="button" class="btn btn-outline" id="btn-cancelar-pdf">Cancelar</button>
+            <button type="button" class="btn btn-primary btn-confirmar-disabled" id="btn-confirmar-pdf" disabled>Confirmar carga</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'pedidos/js/detallePedido.js' %}?v=2"></script>
+{% endblock %}

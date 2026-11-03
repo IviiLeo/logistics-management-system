@@ -1,0 +1,163 @@
+:root {
+    --naranja-ya: #F4661B;
+    --azul-ruta: #123C6B;
+    --crema-pan: #FFF6EC;
+    --carbon: #1B1B1F;
+    --blanco: #FFFFFF;
+    --gris-borde: #CCCCCC;
+    --gris-texto: #666666;
+    --rojo-error: #991B1B;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--crema-pan);
+    color: var(--carbon);
+}
+
+.contenedor {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.tarjeta-login {
+    background-color: var(--blanco);
+    width: 100%;
+    max-width: 380px;
+    padding: 32px;
+    border-radius: 12px;
+    border-top: 6px solid var(--naranja-ya);
+    box-shadow: 0 10px 25px rgba(18, 60, 107, 0.12);
+}
+
+.marca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+    margin-bottom: 20px;
+}
+
+.logo-img {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.marca-ya { color: var(--naranja-ya); }
+.nombre-marca {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--azul-ruta);
+}
+
+h1 {
+    text-align: center;
+    margin: 0 0 8px;
+    font-size: 22px;
+    color: var(--azul-ruta);
+}
+
+.subtitulo {
+    text-align: center;
+    color: var(--gris-texto);
+    margin: 0 0 24px;
+    font-size: 14px;
+}
+
+.campo {
+    margin-bottom: 16px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555555;
+}
+
+.campo input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--gris-borde);
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: var(--naranja-ya);
+    box-shadow: 0 0 0 3px rgba(244, 102, 27, 0.15);
+}
+
+.mensaje-error {
+    background-color: #FEE2E2;
+    color: var(--rojo-error);
+    border: 1px solid #F87171;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 16px;
+}
+
+.mensaje-error p {
+    margin: 0;
+}
+
+.mensaje-exito {
+    background-color: #DCFCE3;
+    color: #166534;
+    border: 1px solid #4ADE80;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 16px;
+}
+
+.boton {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    background-color: var(--naranja-ya);
+    color: var(--blanco);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.boton:hover {
+    filter: brightness(1.1);
+}
+
+.error-campo {
+    color: var(--rojo-error);
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+.campo input.campo-invalido {
+    border-color: #F87171;
+}
+
+[hidden] {
+    display: none !important;
+}

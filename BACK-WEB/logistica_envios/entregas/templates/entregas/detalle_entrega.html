@@ -1,0 +1,181 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Entrega ENT-{{ entrega.id }} - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'entregas/css/entregas.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<a href="{% url 'lista_entregas_web' %}" class="link-volver"><i class="fa-solid fa-arrow-left"></i> Volver a entregas</a>
+
+<div class="encabezado-entrega">
+    <div>
+        <h1>Entrega ENT-{{ entrega.id }}</h1>
+        {% if entrega.comercio %}
+            <p class="subtitulo-entrega">{{ entrega.comercio }} · {{ entrega.domicilio }}</p>
+        {% endif %}
+    </div>
+    {% include 'entregas/_badge_estado.html' with estado=entrega.estado %}
+</div>
+
+<div class="grilla-detalle">
+
+    <section class="tarjeta">
+        <h2 class="tarjeta-titulo"><i class="fa-solid fa-circle-info"></i> Datos de la entrega</h2>
+        <div class="datos">
+            <div>
+                <p class="dato-etiqueta">Fecha</p>
+                <p class="dato-valor">{{ entrega.fecha|date:"d/m/Y" }}</p>
+            </div>
+            <div>
+                <p class="dato-etiqueta">Hora</p>
+                <p class="dato-valor">
+                    {% if entrega.hora %}{{ entrega.hora|time:"H:i" }} hs{% else %}<span class="texto-gris">Todavía no se realizó</span>{% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="dato-etiqueta">Hoja de ruta</p>
+                <p class="dato-valor">
+                    {% if entrega.hoja_id %}
+                        <a href="{% url 'asignar_pedidos' entrega.hoja_id %}" class="link-detail">HR-{{ entrega.hoja_id }}</a>
+                    {% else %}
+                        <span class="texto-gris">—</span>
+                    {% endif %}
+                </p>
+            </div>
+            {% if entrega.observaciones %}
+            <div class="dato-ancho">
+                <p class="dato-etiqueta">Observaciones del transportista</p>
+                <p class="observaciones">{{ entrega.observaciones }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="tarjeta">
+        <h2 class="tarjeta-titulo"><i class="fa-solid fa-wallet"></i> Resumen de cobros</h2>
+        <div class="totales">
+            <div class="total">
+                <p class="total-etiqueta">A cobrar</p>
+                <p class="total-valor">${{ resumen.a_cobrar|stringformat:'.2f' }}</p>
+            </div>
+            <div class="total">
+                <p class="total-etiqueta">Registrado</p>
+                <p class="total-valor">${{ resumen.registrado|stringformat:'.2f' }}</p>
+            </div>
+            <div class="total">
+                <p class="total-etiqueta">Diferencia</p>
+                <p class="total-valor {% if resumen.diferencia > 0 %}falta{% else %}ok{% endif %}">${{ resumen.diferencia|stringformat:'.2f' }}</p>
+            </div>
+        </div>
+
+        <p class="desglose-titulo">Por método de pago (sin rechazados)</p>
+        {% if resumen.por_metodo %}
+            <ul class="desglose">
+                {% for item in resumen.por_metodo %}
+                    <li>
+                        <span>{% include 'entregas/_metodo_pago.html' with codigo=item.codigo %}</span>
+                        <strong>${{ item.monto|stringformat:'.2f' }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% elif entrega.estado == 'en_proceso' %}
+            <p class="vacio-chico">La entrega todavía no se realizó.</p>
+        {% else %}
+            <p class="vacio-chico">No se registraron pagos en esta entrega.</p>
+        {% endif %}
+    </section>
+
+</div>
+
+<section class="seccion">
+    <h2 class="seccion-titulo"><i class="fa-solid fa-box-open"></i> Pedidos de la entrega ({{ pedidos|length }})</h2>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID PEDIDO</th>
+                    <th>PROVEEDOR</th>
+                    <th>ESTADO</th>
+                    <th class="derecha">MONTO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr>
+                    <td><a href="{% url 'detalle_pedido_web' pedido.id %}" class="link-detail">ID-{{ pedido.id }}</a></td>
+                    <td>{{ pedido.proveedor }}</td>
+                    <td>
+                        {% if pedido.estado == 'pendiente' %}<span class="badge badge-pendiente">{{ pedido.estado_texto }}</span>
+                        {% elif pedido.estado == 'asignado' %}<span class="badge badge-asignado">{{ pedido.estado_texto }}</span>
+                        {% elif pedido.estado == 'entregado' %}<span class="badge badge-entregado">{{ pedido.estado_texto }}</span>
+                        {% else %}<span class="badge badge-no-entregado">{{ pedido.estado_texto }}</span>{% endif %}
+                    </td>
+                    <td class="derecha"><strong>${{ pedido.monto|stringformat:'.2f' }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="mensaje-vacio">Esta entrega no tiene pedidos.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="seccion">
+    <h2 class="seccion-titulo"><i class="fa-solid fa-money-check-dollar"></i> Pagos registrados ({{ cantidad_pagos }})</h2>
+    <p class="seccion-ayuda">Separados por método de pago.</p>
+
+    {% if cantidad_pagos == 0 %}
+        <div class="table-container">
+            <p class="mensaje-vacio">
+                {% if entrega.estado == 'en_proceso' %}La entrega todavía no se realizó.{% else %}No se registraron pagos en esta entrega.{% endif %}
+            </p>
+        </div>
+    {% else %}
+        {% for grupo in grupos_pago %}
+        <div class="grupo-pagos">
+            <div class="grupo-titulo">
+                <span>{% include 'entregas/_metodo_pago.html' with codigo=grupo.codigo %} <span class="grupo-cantidad">{{ grupo.pagos|length }}</span></span>
+                <span class="grupo-ayuda">
+                    {% if grupo.codigo == 'efectivo' %}Se cobró en el momento de la entrega.{% else %}Queda anotado en la cuenta del comercio para pagar más adelante.{% endif %}
+                </span>
+            </div>
+            <div class="table-container">
+                <table class="data-table tabla-pagos">
+                    <thead>
+                        <tr>
+                            <th>ID PAGO</th>
+                            <th>ESTADO</th>
+                            <th class="derecha">MONTO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pago in grupo.pagos %}
+                        <tr class="{% if pago.estado == 'rechazado' %}fila-rechazada{% endif %}">
+                            <td><strong class="id-cell">PG-{{ pago.id }}</strong></td>
+                            <td>
+                                {% if pago.estado == 'pendiente' %}<span class="badge badge-pendiente">Pendiente</span>
+                                {% elif pago.estado == 'validado' %}<span class="badge badge-entregado">Validado</span>
+                                {% elif pago.estado == 'rechazado' %}<span class="badge badge-rechazado">Rechazado</span>{% endif %}
+                            </td>
+                            <td class="derecha"><strong>${{ pago.monto|stringformat:'.2f' }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="mensaje-vacio">Sin pagos con {{ grupo.nombre|lower }} en esta entrega.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</section>
+
+{% endblock %}

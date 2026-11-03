@@ -1,0 +1,118 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Nueva hoja de ruta - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'hojas/css/hojas.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<a href="{% url 'gestion_hojas' %}" class="link-volver"><i class="fa-solid fa-arrow-left"></i> Volver a hojas de ruta</a>
+
+<header class="page-header">
+    <h1>Nueva Hoja de Ruta</h1>
+</header>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="pasos">
+    <span class="paso activo"><span class="paso-numero">1</span> Fecha y transportista</span>
+    <span class="paso-separador"></span>
+    <span class="paso"><span class="paso-numero">2</span> Asignar pedidos</span>
+</div>
+
+<section class="tarjeta-blanca">
+    <h2 class="tarjeta-titulo"><i class="fa-regular fa-calendar icono-titulo"></i> Elegí la fecha de entrega</h2>
+    <p class="tarjeta-subtitulo">Tiene que ser posterior a hoy. Al elegirla, vas a ver los transportistas disponibles para ese día.</p>
+
+    <form method="GET" action="{% url 'crear_hoja' %}" id="form-buscar" class="fila-buscar">
+        <div class="form-group">
+            <label for="fecha_calendario">Fecha de entrega</label>
+            <input type="date" id="fecha_calendario" name="fecha_calendario" value="{{ fecha_seleccionada }}">
+        </div>
+    </form>
+
+    <div id="error-fecha" class="mensaje error" hidden>La fecha debe ser posterior a la actual.</div>
+</section>
+
+<section class="tarjeta-blanca">
+    <div class="titulo-con-buscador">
+        <h2 class="tarjeta-titulo"><i class="fa-solid fa-truck icono-titulo"></i> Elegí el transportista</h2>
+        {% if lista_de_transportistas %}
+            <input type="text" id="buscar-transportista" class="input-search input-chico" placeholder="Buscar por ID...">
+        {% endif %}
+    </div>
+
+    {% if lista_de_transportistas is None %}
+        <p class="aviso-vacio">Seleccioná una fecha para ver los transportistas disponibles.</p>
+    {% else %}
+        <p class="tarjeta-subtitulo">Disponibles para el {{ fecha_seleccionada|slice:"8:10" }}/{{ fecha_seleccionada|slice:"5:7" }}/{{ fecha_seleccionada|slice:"0:4" }}. No se muestran los que ya tienen una hoja de ruta ese día.</p>
+
+        <form method="POST" action="{% url 'crear_hoja' %}" id="form-crear">
+            {% csrf_token %}
+            <input type="hidden" name="fecha" value="{{ fecha_seleccionada }}">
+
+            <div class="table-container tabla-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>TRANSPORTISTA</th>
+                            <th>DNI</th>
+                            <th>ESTADO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-transportistas">
+                        {% for transportista in lista_de_transportistas %}
+                        <tr class="fila-transportista {% if not transportista.estado %}fila-inactiva{% endif %}" data-id="{{ transportista.id }}">
+                            <td class="celda-radio">
+                                <input type="radio" name="transportista" value="{{ transportista.id }}" id="transportista-{{ transportista.id }}" {% if not transportista.estado %}disabled{% endif %}>
+                            </td>
+                            <td><label for="transportista-{{ transportista.id }}"><strong class="id-cell">ID-{{ transportista.id }}</strong></label></td>
+                            <td><label for="transportista-{{ transportista.id }}">{{ transportista.nombre }} {{ transportista.apellido }}</label></td>
+                            <td class="texto-gris">{{ transportista.dni }}</td>
+                            <td>
+                                {% if transportista.estado %}
+                                    <span class="badge badge-entregado">Activo</span>
+                                {% else %}
+                                    <span class="badge badge-no-entregado">Inactivo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="mensaje-vacio">No hay transportistas disponibles para la fecha elegida.</td>
+                        </tr>
+                        {% endfor %}
+                        <tr id="fila-sin-resultados" hidden>
+                            <td colspan="5" class="mensaje-vacio">No hay transportistas disponibles con ese ID.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="aviso-inactivo" class="mensaje error" hidden>El transportista seleccionado no se encuentra activo.</div>
+
+            {% if lista_de_transportistas %}
+            <div class="pie-acciones pie-crear">
+                <p class="seleccion-actual" id="seleccion-actual">Todavía no elegiste un transportista.</p>
+                <button type="submit" class="btn btn-primary btn-con-icono" id="btn-siguiente" disabled>
+                    <span>Siguiente: asignar pedidos</span><i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+            {% endif %}
+        </form>
+    {% endif %}
+</section>
+
+<script src="{% static 'hojas/js/crear_hoja.js' %}"></script>
+{% endblock %}

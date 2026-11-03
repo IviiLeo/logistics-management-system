@@ -1,0 +1,131 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Pagos - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/pagos.css' %}">
+{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h1>Bandeja de Pagos</h1>
+</header>
+
+<div id="alertas-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="filtros">
+    <div class="filtro">
+        <label>ID PAGOS</label>
+        <input type="text" id="buscador-pagos" placeholder="Ej: 5001" class="input-search">
+    </div>
+    
+    <div class="filtro">
+        <label>ESTADO</label>
+        <select id="filtro-estado" class="select-filter">
+            <option value="todos">Todos los estados</option>
+            <option value="pendiente" id="opt-pendientes">Pendientes ({{ qty_pendientes|default:"0" }})</option>
+            <option value="validado">Validados</option>
+            <option value="rechazado">Rechazados</option>
+        </select>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID PAGO</th>
+                <th>ID ENTREGA</th>
+                <th>COMERCIO CLIENTE</th>
+                <th>MÉTODO</th>
+                <th>MONTO</th>
+                <th>FECHA Y HORA</th>
+                <th>ESTADO</th>
+                <th class="text-center">ACCIONES</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-pagos">
+            {% for pago in pagos_list %}
+            <tr data-estado="{{ pago.estado }}" class="fila-pago">
+                <td><strong>PG-{{ pago.id }}</strong></td>
+                <td class="col-entrega"><a href="#" class="link-detail">ENT-{{ pago.entrega.id }}</a></td>
+                <td>{{ pago.entrega.razon_social_comercio }}</td>
+                <td>{{ pago.metodo }}</td>
+                <td><strong>${{ pago.monto|stringformat:'.2f' }}</strong></td>
+                <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
+                <td class="estado-cell">
+                    {% if pago.estado == 'pendiente' %} <span class="badge badge-pendiente">Pendiente</span>
+                    {% elif pago.estado == 'rechazado' %} <span class="badge badge-rechazado">Rechazado</span>
+                    {% elif pago.estado == 'validado' %} <span class="badge badge-entregado">Validado</span>
+                    {% endif %}
+                </td>
+                <td class="text-center accion-cell">
+                    <div class="accion-cell-content">
+                        <a href="javascript:void(0)" class="link-detail link-chico">Ver detalle pago</a>
+                        
+                        {% if pago.estado == 'pendiente' %}
+                        <div class="acciones-wrapper">
+                            <button type="button" class="btn btn-outline btn-validar" 
+                                    data-id="PG-{{ pago.id }}" 
+                                    data-entrega="ENT-{{ pago.entrega.id }}"
+                                    data-monto="${{ pago.monto|stringformat:'.2f' }}"
+                                    title="Validar Pago">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline btn-rechazar" 
+                                    data-id="PG-{{ pago.id }}" 
+                                    data-entrega="ENT-{{ pago.entrega.id }}"
+                                    data-monto="${{ pago.monto|stringformat:'.2f' }}"
+                                    title="Rechazar Pago">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            
+            <!-- Fila única blindada sin errores de VS Code -->
+            <tr id="fila-vacia" {% if pagos_list %}style="display: none;"{% endif %}>
+                <td colspan="8" class="mensaje-vacio">No hay pagos para mostrar en esta vista.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL DINÁMICO -->
+<div id="modal-accion-pago" class="modal-overlay hidden">
+    <div class="modal-card modal-accion-card">
+        <h2 id="modal-titulo">Acción</h2>
+        <p class="modal-desc desc-grande">¿Confirmás que querés <strong id="modal-accion-texto"></strong> el pago <strong id="modal-pago-txt" class="texto-azul"></strong> por <strong id="modal-monto"></strong> de la entrega <strong id="modal-entrega"></strong>?</p>
+        
+        <form id="form-accion-pago">
+            {% csrf_token %}
+            <input type="hidden" id="input-pago-id" name="pago_id">
+            <input type="hidden" id="input-accion-tipo" name="accion_tipo">
+            
+            <div class="modal-actions acciones-centro">
+                <button type="button" class="btn btn-outline" id="btn-cancelar-accion">Cancelar</button>
+                <button type="submit" class="btn" id="btn-confirmar-accion">Confirmar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="{% static 'js/pagos.js' %}"></script>
+<script>
+    const urlAccionPago = "{% url 'procesar_pago_endpoint' %}"; 
+</script>
+{% endblock %}
+{% endblock %}

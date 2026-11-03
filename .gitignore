@@ -1,0 +1,64 @@
+# Variables de entorno y secretos en BACK-WEB
+**/.env
+
+# Entornos virtuales (adentro de BACK-WEB o en la raíz)
+BACK-WEB/venv/
+BACK-WEB/env/
+BACK-WEB/.venv/
+venv/
+.venv/
+
+# Base de datos local
+BACK-WEB/**/*.sqlite3
+BACK-WEB/**/*.sqlite3-journal
+
+# Caché y archivos compilados de Python
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos subidos localmente (PDFs de remitos de prueba)
+BACK-WEB/**/media/
+
+# =========================
+# CONFIGURACIÓN DEL EDITOR
+# =========================
+.vscode/
+
+# =========================
+# FRONTEND (React Native / Expo en carpeta APP)
+# =========================
+APP/node_modules/
+APP/.expo/
+APP/npm-debug.log*
+APP/yarn-debug.log*
+APP/yarn-error.log*
+
+# =========================
+# BACKEND (Django en carpeta BACK-WEB)
+# =========================
+# Entornos virtuales (los tenés duplicados, atajamos todos)
+BACK-WEB/venv/
+BACK-WEB/env/
+BACK-WEB/logistica_envios/venv/
+BACK-WEB/logistica_envios/env/
+
+# Variables de entorno y secretos
+BACK-WEB/logistica_envios/.env
+BACK-WEB/.env
+
+# Archivos de caché compilados de Python
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Base de datos local
+BACK-WEB/logistica_envios/db.sqlite3
+BACK-WEB/**/*.sqlite3
+BACK-WEB/**/*.sqlite3-journal
+
+# Archivos multimedia subidos por usuarios durante las pruebas
+BACK-WEB/logistica_envios/media/
+
+# Archivos comprimidos residuales
+BACK-WEB/logistica_envios.rar

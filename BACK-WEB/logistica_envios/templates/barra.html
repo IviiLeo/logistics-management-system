@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'img/logotipo/05_isotipo_favicon.png' %}?v=1">
+    <title>{% block title %}Panel de Logística{% endblock %}</title>
+    <!-- Para ver los iconos disponibles entra a https://fontawesome.com/v6/search?ic=free -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/barra.css' %}?v=7">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <div class="dashboard-container">
+        
+        <!-- BARRA LATERAL -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <a href="{% url 'home' %}" class="brand">
+                    <img src="{% static 'img/logotipo/06_isotipo_azul.svg' %}" alt="Logo RepartoYA" class="logo-box-img">
+                    <span class="company-name">Reparto<span class="brand-ya">YA</span></span>
+                </a>
+
+                <div class="sidebar-divider"></div>
+                
+                <div class="nav-section">
+                    <span class="nav-label">GESTIÓN</span>
+                    <ul class="nav-links">
+                        <li><a href="{% url 'home' %}" class="{% if request.path == '/home/' %}active{% endif %}"><i class="fa-solid fa-house fa-fw"></i> Inicio</a></li>
+                        <li><a href="{% url 'lista_pedidos_web' %}" class="{% if '/pedidos/' in request.path %}active{% endif %}"><i class="fa-solid fa-box fa-fw"></i> Pedidos</a></li>
+                        <li><a href="{% url 'gestion_hojas' %}" class="{% if '/hojas/' in request.path %}active{% endif %}"><i class="fa-solid fa-map-location fa-fw"></i> Hojas de ruta</a></li>
+                        <li><a href="{% url 'lista_entregas_web' %}" class="{% if '/entregas/' in request.path %}active{% endif %}"><i class="fa-solid fa-truck-ramp-box"></i> Entregas</a></li>
+                        <li><a href="{% url 'lista_pagos_web' %}" class="{% if '/pagos/' in request.path %}active{% endif %}"><i class="fa-solid fa-coins"></i> Pagos</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-profile">
+                    <i class="fa-solid fa-circle-user user-avatar"></i>
+                    <div class="user-info">
+                        <span class="user-name">{{ request.admin_actual.nombre }} {{ request.admin_actual.apellido }}</span>
+                        <span class="user-email">{{ request.admin_actual.mail }}</span>
+                    </div>
+                </div>
+                <!-- Interceptamos el cierre de sesión con este ID -->
+                <a class="logout-btn" id="btn-abrir-logout">Cerrar sesión</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- MODAL: CONFIRMAR LOGOUT (Global) -->
+    <div id="modal-confirmar-logout" class="modal-overlay hidden">
+        <div class="modal-card modal-logout-card">
+            <h2>Cerrar Sesión</h2>
+            <p class="modal-logout-text">¿Estás seguro de que querés salir del sistema?</p>
+            <div class="modal-actions modal-logout-actions">
+                <button type="button" class="btn btn-outline" id="btn-cancelar-logout">Cancelar</button>
+                <a href="/logout/" class="btn btn-primary">Sí, salir</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/barra.js' %}"></script>
+</body>
+</html>

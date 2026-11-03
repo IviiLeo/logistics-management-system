@@ -1,0 +1,110 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Hoja de ruta HR-{{ hoja.id }} - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'hojas/css/hojas.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% now "Y-m-d" as hoy %}
+{% with fecha_hoja=hoja.fecha|date:"Y-m-d" %}
+
+<a href="{% url 'gestion_hojas' %}" class="link-volver"><i class="fa-solid fa-arrow-left"></i> Volver a hojas de ruta</a>
+
+<header class="page-header encabezado-hoja">
+    <div>
+        <h1>Hoja de Ruta HR-{{ hoja.id }}</h1>
+        <p class="datos-hoja">
+            <span><i class="fa-regular fa-calendar"></i> {{ hoja.fecha|date:"d/m/Y" }}</span>
+            <span><i class="fa-solid fa-truck"></i> {{ hoja.transportista.nombre }} {{ hoja.transportista.apellido }} (DNI {{ hoja.transportista.dni }})</span>
+        </p>
+    </div>
+</header>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div id="mensaje-accion" class="mensaje"></div>
+
+{% if fecha_hoja > hoy %}
+    <div class="pasos">
+        <span class="paso hecho"><span class="paso-numero"><i class="fa-solid fa-check"></i></span> Fecha y transportista</span>
+        <span class="paso-separador"></span>
+        <span class="paso activo"><span class="paso-numero">2</span> Asignar pedidos</span>
+    </div>
+    <p class="ayuda">Hacé clic en <strong>Agregar</strong> para sumar un pedido a la hoja, o en <strong>Quitar</strong> para devolverlo a disponibles. Los cambios se guardan al instante.</p>
+{% else %}
+    <div class="cartel-bloqueo"><i class="fa-solid fa-lock"></i> La fecha de esta hoja de ruta ya llegó, así que no puede modificarse.</div>
+{% endif %}
+
+{% csrf_token %}
+
+<div class="dos-columnas" id="contenedor-listas"
+     data-editable="{% if fecha_hoja > hoy %}si{% else %}no{% endif %}"
+     data-url-mover="{% url 'mover_pedido' hoja.id 0 %}">
+
+    {% if fecha_hoja > hoy %}
+    <section class="columna">
+        <div class="columna-titulo">
+            <h2>Pedidos disponibles <span class="contador" id="contador-disponibles">{{ disponibles|length }}</span></h2>
+            <input type="text" id="buscar-pedido" class="input-search input-chico" placeholder="Buscar por ID...">
+        </div>
+        <p class="columna-subtitulo">Pendientes con entrega el {{ hoja.fecha|date:"d/m/Y" }}</p>
+        <div class="lista-pedidos" id="lista-disponibles">
+            {% for pedido in disponibles %}
+                <article class="pedido-tarjeta" data-id="{{ pedido.id }}">
+                    <div class="pedido-info">
+                        <p class="pedido-id">PD-{{ pedido.id }}</p>
+                        <p class="pedido-comercio">{{ pedido.razon_social_comercio }}</p>
+                        <p class="pedido-detalle">{{ pedido.domicilio_comercio }} · ${{ pedido.monto_total }}</p>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-chico btn-mover">Agregar <i class="fa-solid fa-arrow-right"></i></button>
+                </article>
+            {% endfor %}
+        </div>
+        <p class="aviso-vacio" id="vacio-disponibles" {% if disponibles %}hidden{% endif %}>No hay pedidos pendientes con esta fecha de entrega.</p>
+        <p class="aviso-vacio" id="sin-resultados" hidden>No hay pedidos con ese ID.</p>
+    </section>
+    {% endif %}
+
+    <section class="columna columna-asignados">
+        <div class="columna-titulo">
+            <h2>Pedidos en esta hoja <span class="contador" id="contador-asignados">{{ asignados|length }}</span></h2>
+        </div>
+        <p class="columna-subtitulo">Los que va a entregar {{ hoja.transportista.nombre }}</p>
+        <div class="lista-pedidos" id="lista-asignados">
+            {% for pedido in asignados %}
+                <article class="pedido-tarjeta" data-id="{{ pedido.id }}">
+                    <div class="pedido-info">
+                        <p class="pedido-id">PD-{{ pedido.id }}</p>
+                        <p class="pedido-comercio">{{ pedido.razon_social_comercio }}</p>
+                        <p class="pedido-detalle">{{ pedido.domicilio_comercio }} · ${{ pedido.monto_total }}</p>
+                    </div>
+                    {% if fecha_hoja > hoy %}
+                        <button type="button" class="btn btn-outline btn-chico btn-mover"><i class="fa-solid fa-arrow-left"></i> Quitar</button>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+        <p class="aviso-vacio" id="vacio-asignados" {% if asignados %}hidden{% endif %}>Esta hoja de ruta todavía no tiene pedidos.</p>
+    </section>
+</div>
+
+{% if fecha_hoja > hoy %}
+<div class="pie-acciones pie-fijo">
+    <a href="{% url 'gestion_hojas' %}?filtro=futuras" class="btn btn-primary">Listo</a>
+</div>
+{% endif %}
+
+{% endwith %}
+
+<script src="{% static 'hojas/js/asignar_pedidos.js' %}"></script>
+{% endblock %}

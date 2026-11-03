@@ -1,0 +1,117 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Entregas - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'entregas/css/entregas.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="page-header">
+    <h1>Gestión de Entregas</h1>
+</header>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<form method="GET" action="{% url 'lista_entregas_web' %}" class="controls-bar filtros" id="form-filtros">
+    <div class="filtro">
+        <label for="f-id">ID entrega</label>
+        <input type="text" id="f-id" name="id_entrega" value="{{ id_buscado }}" class="input-search" placeholder="Ej: 24" inputmode="numeric" data-solo-numeros>
+    </div>
+    <div class="filtro">
+        <label for="f-hoja">Hoja de ruta</label>
+        <input type="text" id="f-hoja" name="hoja" value="{{ hoja_buscada }}" class="input-search" placeholder="Ej: 5" inputmode="numeric" data-solo-numeros>
+    </div>
+    <div class="filtro">
+        <label for="f-fecha">Fecha</label>
+        <input type="date" id="f-fecha" name="fecha" value="{{ fecha_buscada }}" class="input-search">
+    </div>
+    <div class="filtro">
+        <label for="f-estado">Estado</label>
+        <select id="f-estado" name="estado" class="select-filter">
+            <option value="todos" {% if estado_actual == 'todos' %}selected{% endif %}>Todos los estados</option>
+            <option value="en_proceso" {% if estado_actual == 'en_proceso' %}selected{% endif %}>En proceso</option>
+            <option value="entregada" {% if estado_actual == 'entregada' %}selected{% endif %}>Entregadas</option>
+            <option value="no_entregada" {% if estado_actual == 'no_entregada' %}selected{% endif %}>No entregadas</option>
+        </select>
+    </div>
+</form>
+
+<p class="resumen-filtro">
+    {{ lista_de_entregas.paginator.count }} entrega{{ lista_de_entregas.paginator.count|pluralize }}
+</p>
+
+<div class="table-container tabla-listado">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID ENTREGA</th>
+                <th>FECHA</th>
+                <th>HOJA DE RUTA</th>
+                <th>COMERCIO</th>
+                <th>PEDIDOS</th>
+                <th>ESTADO</th>
+                <th>ACCIONES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entrega in lista_de_entregas %}
+            <tr>
+                <td><strong class="id-cell">ENT-{{ entrega.id }}</strong></td>
+                <td>
+                    {{ entrega.fecha|date:"d/m/Y" }}
+                    {% if entrega.hora %}<div class="texto-secundario">{{ entrega.hora|time:"H:i" }} hs</div>{% endif %}
+                </td>
+                <td>
+                    {% if entrega.hoja_id %}
+                        <strong class="id-cell">HR-{{ entrega.hoja_id }}</strong>
+                        <div class="texto-secundario">{{ entrega.transportista }}</div>
+                    {% else %}
+                        <span class="texto-gris">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="comercio-nombre">{{ entrega.comercio }}</div>
+                    <div class="texto-secundario">{{ entrega.domicilio }}</div>
+                </td>
+                <td>{{ entrega.cantidad_pedidos }}</td>
+                <td>{% include 'entregas/_badge_estado.html' with estado=entrega.estado %}</td>
+                <td><a href="{% url 'detalle_entrega_web' entrega.id %}" class="link-detail">Ver detalle</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="mensaje-vacio">
+                    {% if hay_filtros %}
+                        No hay entregas que coincidan con los filtros.
+                    {% else %}
+                        Aún no hay entregas registradas en el sistema.
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if lista_de_entregas.has_other_pages %}
+<div class="paginacion-container">
+    {% if lista_de_entregas.has_previous %}
+        <a href="?pagina={{ lista_de_entregas.previous_page_number }}{% if parametros_url %}&{{ parametros_url }}{% else %}&id_entrega={{ id_buscado }}&hoja={{ hoja_buscada }}&fecha={{ fecha_buscada }}&estado={{ estado_actual }}{% endif %}" class="btn btn-outline">Anterior</a>
+    {% endif %}
+    <span class="paginacion-info">Página {{ lista_de_entregas.number }} de {{ lista_de_entregas.paginator.num_pages }}</span>
+    {% if lista_de_entregas.has_next %}
+        <a href="?pagina={{ lista_de_entregas.next_page_number }}{% if parametros_url %}&{{ parametros_url }}{% else %}&id_entrega={{ id_buscado }}&hoja={{ hoja_buscada }}&fecha={{ fecha_buscada }}&estado={{ estado_actual }}{% endif %}" class="btn btn-outline">Siguiente</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script src="{% static 'entregas/js/entregas.js' %}"></script>
+{% endblock %}

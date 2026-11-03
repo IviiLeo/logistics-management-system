@@ -1,0 +1,90 @@
+/* ================= TARJETAS Y ENCABEZADOS ================= */
+.detalle-card { padding: 30px; }
+.detalle-card-spacing { margin-bottom: 20px; }
+
+/* ================= FLECHA RETROCESO ================= */
+.header-con-flecha { display: flex; align-items: center; gap: 15px; margin-bottom: 5px; }
+.btn-flecha-atras { background: transparent; border: none; font-size: 20px; color: var(--azul-ruta); cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 40px; width: 40px; border-radius: 50%; text-decoration: none; }
+.btn-flecha-atras:hover { background-color: rgba(18, 60, 107, 0.08); }
+
+.detalle-section-title { color: var(--azul-ruta); font-size: 18px; }
+.detalle-section-subtitle { font-size: 13px; color: #666; margin-bottom: 25px; }
+
+/* ================= CAMPOS DEL FORMULARIO ================= */
+.input-readonly { background-color: #f5f5f5 !important; color: #888; cursor: not-allowed; border-color: #e0e0e0 !important; }
+.estado-badge-wrapper { display: flex; }
+.estado-badge-wrapper .badge { display: inline-flex; align-items: center; justify-content: center; height: 41px; padding: 0 10px; font-size: 13px; }
+.remito-actions { display: flex; align-items: center; gap: 10px; }
+.btn-remito-link { text-decoration: none; color: #333; height: 41px; padding: 0 16px; font-size: 14px; }
+.btn-remito-disabled { opacity: 0.5; cursor: not-allowed; background-color: #f9f9f9; color: #888; height: 41px; padding: 0 16px; font-size: 14px; }
+.btn-icon-edit { height: 41px; width: 41px; padding: 0; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.badge-nuevo-pdf { font-size: 13px; color: #166534; background: #dcfce3; padding: 4px 8px; border-radius: 4px; display: none; }
+
+/* ================= BOTONERA INFERIOR ================= */
+.detalle-form-actions { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; justify-content: space-between; }
+.detalle-actions-right { display: flex; gap: 10px; }
+
+/* ================= MODALES ================= */
+.modal-text { font-size: 14px; color: #555; margin-bottom: 20px; }
+.modal-title-danger { color: #dc3545; }
+.btn-link-no-underline { text-decoration: none; }
+.modal-pdf-card { width: 450px; }
+.modal-pdf-subtitle { font-size: 13px; color: #666; margin-bottom: 20px; }
+.drop-icon { font-size: 30px; display: block; margin-bottom: 10px; }
+.input-file-hidden { display: none; }
+.modal-pdf-actions { margin-top: 25px; justify-content: flex-end; }
+.btn-confirmar-disabled { opacity: 0.5; cursor: not-allowed; }
+
+.titulo-sin-margen { margin-bottom: 0; }
+.dato-padding { padding: 10px 0; }
+.dato-destacado { color: var(--carbon); font-weight: 600; }
+.mensaje-vacio-caja { 
+    background-color: #fafafa; 
+    padding: 20px; 
+    border-radius: 4px; 
+    border: 1px dashed #ccc; 
+    color: #666; 
+    font-size: 13px; 
+}
+
+.drop-zone-hover { border-color: #FFC107 !important; background-color: #fffdf5 !important; }
+.btn-deshabilitado { opacity: 0.5; cursor: not-allowed !important; pointer-events: none; }
+.d-inline-block { display: inline-block !important; }
+.hidden { display: none !important; }
+
+/* ================= ENLACE HOJA DE RUTA AL LADO DEL ESTADO ================= */
+.align-center {
+    align-items: center;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+
+.badge-hoja-ruta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 41px;
+    padding: 0 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge-hoja-ruta i {
+    color: var(--naranja-ya);
+}
+
+.link-hoja {
+    color: var(--carbon);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link-hoja:hover {
+    color: var(--azul-ruta);
+    text-decoration: underline;
+}

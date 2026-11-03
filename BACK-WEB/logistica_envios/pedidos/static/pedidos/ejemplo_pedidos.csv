@@ -1,0 +1,4 @@
+cuit_comercio,razon_social_comercio,domicilio_comercio,cuit_proveedor,razon_social_proveedor,monto_total,fecha_entrega
+30712345678,Almacen Don Jose SRL,Av. San Martin 1450,30598765432,Distribuidora Sur SA,25400.50,2026-12-15
+20345678901,Minimercado El Sol,Belgrano 820,30598765432,Distribuidora Sur SA,18000.00,2026-12-16
+

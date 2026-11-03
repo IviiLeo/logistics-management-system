@@ -1,0 +1,95 @@
+{% extends 'barra.html' %}
+{% load static %}
+
+{% block title %}Hojas de ruta - RepartoYA{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'hojas/css/hojas.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="page-header">
+    <h1>Gestión de Hojas de Ruta</h1>
+</header>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="mensaje {% if message.tags == 'success' %}exito{% else %}error{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="controls-bar">
+    <div class="filtros-tiempo">
+        <a href="?filtro=pasadas" class="filtro-tiempo {% if filtro_actual == 'pasadas' %}activo{% endif %}">Pasadas</a>
+        <a href="?filtro=hoy" class="filtro-tiempo {% if filtro_actual == 'hoy' %}activo{% endif %}">Hoy</a>
+        <a href="?filtro=futuras" class="filtro-tiempo {% if filtro_actual == 'futuras' %}activo{% endif %}">Futuras</a>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'crear_hoja' %}" class="btn btn-primary btn-con-icono"><i class="fa-solid fa-plus"></i><span>Nueva hoja de ruta</span></a>
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID HOJA</th>
+                <th>FECHA DE ENTREGA</th>
+                <th>TRANSPORTISTA</th>
+                <th>DNI</th>
+                <th>PEDIDOS</th>
+                <th>ACCIONES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hoja in lista_de_hojas %}
+            <tr>
+                <td><strong class="id-cell">HR-{{ hoja.id }}</strong></td>
+                <td>{{ hoja.fecha|date:"d/m/Y" }}</td>
+                <td>{{ hoja.transportista.nombre }} {{ hoja.transportista.apellido }}</td>
+                <td class="texto-gris">{{ hoja.transportista.dni }}</td>
+                <td>
+                    {% with cantidad=hoja.pedidos.all|length %}
+                        {% if cantidad == 0 %}
+                            <span class="texto-gris">Sin pedidos</span>
+                        {% else %}
+                            {{ cantidad }} pedido{{ cantidad|pluralize }}
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                <td><a href="{% url 'asignar_pedidos' hoja.id %}" class="link-detail">Ver pedidos</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="mensaje-vacio">
+                    {% if filtro_actual == 'pasadas' %}
+                        No hay hojas de ruta pasadas.
+                    {% elif filtro_actual == 'futuras' %}
+                        No hay hojas de ruta futuras.
+                    {% else %}
+                        No hay hojas de ruta para hoy.
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if lista_de_hojas.has_other_pages %}
+<div class="paginacion-container">
+    {% if lista_de_hojas.has_previous %}
+        <a href="?pagina={{ lista_de_hojas.previous_page_number }}&filtro={{ filtro_actual }}" class="btn btn-outline">Anterior</a>
+    {% endif %}
+    <span class="paginacion-info">Página {{ lista_de_hojas.number }} de {{ lista_de_hojas.paginator.num_pages }}</span>
+    {% if lista_de_hojas.has_next %}
+        <a href="?pagina={{ lista_de_hojas.next_page_number }}&filtro={{ filtro_actual }}" class="btn btn-outline">Siguiente</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
